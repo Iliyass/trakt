@@ -1,6 +1,7 @@
 package trakt
 
 import (
+	"errors"
 	"time"
 )
 
@@ -19,21 +20,38 @@ func (s *RAMStorage) AddTrakt(trakt Trakt) bool {
 //GetTraktsByDate to list trakts by date
 func (s *RAMStorage) GetTraktsByDate(from time.Time, to time.Time) (res []Trakt) {
 	for _, trakt := range s.trakts {
-		if trakt.CreatedAt.Unix() >= from.Unix() && trakt.CreatedAt.Unix() <= to.Unix() {
+		if trakt.CreatedAt >= from.Unix() && trakt.CreatedAt <= to.Unix() {
 			res = append(res, trakt)
 		}
 	}
 	return res
 }
 
-// getTraktsByTag find Trakt by Tag Object
-// func (s *RAMStorage) getTraktsByTag(tag Tag) (res []Trakt) {
-// 	for _, trakt := range s.trakts {
-// 		for _, t := range trakt.Tags {
-// 			if t.Name == tag.Name {
-// 				res = append(res, trakt)
-// 			}
-// 		}
-// 	}
-// 	return res
-// }
+// GetTraktsByTag find Trakt by Tag Object
+func (s *RAMStorage) GetTraktsByTag(tag Tag) (res []Trakt) {
+	for _, trakt := range s.trakts {
+		for _, t := range trakt.Tags {
+			if t.Name == tag.Name {
+				res = append(res, trakt)
+			}
+		}
+	}
+	return res
+}
+
+// AddTag add tag
+func (s *RAMStorage) AddTag(tag Tag) bool {
+	prevLen := len(s.tags)
+	s.tags = append(s.tags, tag)
+	return len(s.tags) > prevLen
+}
+
+// GetTag get tag
+func (s *RAMStorage) GetTag(name string) (tag *Tag, err error) {
+	for _, t := range s.tags {
+		if t.Name == name {
+			return tag, nil
+		}
+	}
+	return nil, errors.New("Tag not found")
+}

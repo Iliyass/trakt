@@ -1,24 +1,66 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"strconv"
-	"time"
+	"log"
+	"os"
 
 	trakt "github.com/Iliyass/trakt/Trakt"
+	"github.com/urfave/cli"
 )
 
 func main() {
+	app := cli.NewApp()
+	app.Name = "Trakt"
+	app.Usage = "Manage your time"
+	app.Action = func(c *cli.Context) error {
+		fmt.Println("Ok Cool!")
+		return nil
+	}
 
-	from := time.Now()
-	ex := trakt.Tag{Name: "Exersicing", CreatedAt: time.Now()}
-	run := trakt.Trakt{Text: "Run 5k on 29m", CreatedAt: time.Now(), Tags: []trakt.Tag{ex}}
-	to := time.Now()
+	app.Commands = []cli.Command{
+		{
+			Name:    "trakt",
+			Aliases: []string{"t"},
+			Usage:   "trakt management",
+			Subcommands: []cli.Command{
+				{
+					Name:  "add",
+					Usage: "add new Trakt",
+					Flags: []cli.Flag{
+						cli.StringFlag{Name: "data, d", Required: true},
+					},
+					Action: func(c *cli.Context) error {
+						data := []byte(c.String("data"))
+						_, err := trakt.AddTrakt(data)
+						if err != nil {
+							panic(err)
+						}
+						fmt.Println("Success! Trakt has been added")
+						return nil
+					},
+				},
+				{
+					Name:  "list",
+					Usage: "list Trakt",
+					Flags: []cli.Flag{
+						cli.Int64Flag{Name: "from, f", Required: true},
+						cli.Int64Flag{Name: "to, t", Required: true},
+					},
+					Action: func(c *cli.Context) error {
+						from := c.Int64("from")
+						to := c.Int64("to")
+						trakts := trakt.GetTraktsByDate(from, to)
+						fmt.Println(string(trakts))
+						return nil
+					},
+				},
+			},
+		},
+	}
 
-	data, _ := json.Marshal(run)
-	fmt.Println(trakt.AddTrakt(data))
-	fromStr := strconv.FormatInt(from.Unix(), 10)
-	toStr := strconv.FormatInt(to.Unix(), 10)
-	fmt.Println(string(trakt.GetTraktsByDate(fromStr, toStr)))
+	err := app.Run(os.Args)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
