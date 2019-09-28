@@ -36,7 +36,7 @@ var storageInstance Storage
 
 func getStorage() Storage {
 	if storageInstance == nil {
-		storageInstance = &RAMStorage{}
+		storageInstance = &FileStorage{}
 	}
 	return storageInstance
 }
