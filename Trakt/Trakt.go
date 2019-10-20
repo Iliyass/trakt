@@ -16,6 +16,27 @@ type Tag struct {
 	CreatedAt int64  `json:"created_at"`
 }
 
+// UnmarshallJSON unmarshalling json of Tag
+func (tag *Tag) UnmarshallJSON(data []byte) (Tag, error) {
+	var t Tag
+	err := json.Unmarshal(data, &t)
+	if err != nil {
+		panic(err)
+	}
+	return NewTag(t.Name, t.CreatedAt), nil
+}
+
+// NewTag Factory func to create Tag
+func NewTag(name string, createdAt int64) (tag Tag) {
+	if name == "" {
+		panic("Name is required")
+	}
+	if createdAt == 0 {
+		panic("CreatedAt is required")
+	}
+	return Tag{Name: name, CreatedAt: createdAt}
+}
+
 // Trakt struct
 type Trakt struct {
 	Text      string `json:"text"`
@@ -71,10 +92,11 @@ func GetTraktsByDate(from int64, to int64) (res []byte) {
 }
 
 // AddTag : Public API for Adding JSON based Tag
-func AddTag(tagData []byte, storage Storage) (bool, error) {
+func AddTag(tagData []byte) (bool, error) {
+	storage := getStorage()
 	// Deserialize Tag
 	var tag Tag
-	err := json.Unmarshal(tagData, &tag)
+	tag, err := tag.UnmarshallJSON(tagData)
 	if err != nil {
 		return false, err
 	}
