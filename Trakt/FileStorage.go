@@ -30,6 +30,10 @@ func createFile(fileName string) bool {
 	if err != nil {
 		panic(err)
 	}
+	_, err = newFile.WriteString("[]")
+	if err != nil {
+		panic(err)
+	}
 	newFile.Close()
 	return true
 }
@@ -58,7 +62,7 @@ func readFile(fileName string) []byte {
 }
 
 func writeFile(fileName string, data []byte) error {
-	err := ioutil.WriteFile(getPath(TRAKTS_FILENAME), data, 0666)
+	err := ioutil.WriteFile(getPath(fileName), data, 0666)
 	if err != nil {
 		panic(err)
 	}
@@ -85,7 +89,7 @@ func (s *FileStorage) AddTrakt(trakt Trakt) bool {
 	return true
 }
 
-//GetTraktsByDate to list trakts by date
+// GetTraktsByDate to list trakts by date
 func (s *FileStorage) GetTraktsByDate(from time.Time, to time.Time) (res []Trakt) {
 	fileName := TRAKTS_FILENAME
 	data := readFile(fileName)
@@ -130,11 +134,16 @@ func (s *FileStorage) AddTag(tag Tag) bool {
 			isDuplicate = true
 		}
 	}
+
 	if isDuplicate {
 		return true
 	}
 	tags = append(tags, tag)
 	data, err = json.Marshal(tags)
+	if err != nil {
+		panic(err)
+	}
+	err = writeFile(fileName, data)
 	if err != nil {
 		panic(err)
 	}
