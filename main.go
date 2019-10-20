@@ -20,6 +20,29 @@ func main() {
 
 	app.Commands = []cli.Command{
 		{
+			Name:    "tags",
+			Aliases: []string{"t"},
+			Usage:   "tags management",
+			Subcommands: []cli.Command{
+				{
+					Name:  "add",
+					Usage: "add new Tag",
+					Flags: []cli.Flag{
+						cli.StringFlag{Name: "data, d", Required: true},
+					},
+					Action: func(c *cli.Context) error {
+						data := []byte(c.String("data"))
+						_, err := trakt.AddTag(data)
+						if err != nil {
+							panic(err)
+						}
+						fmt.Println("Success! Tag has been added")
+						return nil
+					},
+				},
+			},
+		},
+		{
 			Name:    "trakt",
 			Aliases: []string{"t"},
 			Usage:   "trakt management",
