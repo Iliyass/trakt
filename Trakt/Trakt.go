@@ -2,6 +2,7 @@ package trakt
 
 import (
 	"encoding/json"
+	"errors"
 	"time"
 )
 
@@ -63,6 +64,22 @@ func getStorage() Storage {
 	return storageInstance
 }
 
+// NewTrakt Factory func
+func NewTrakt(text string, createdAt int64, tags []Tag) (Trakt, error) {
+	if text == "" {
+		return Trakt{}, errors.New("Text is Required")
+	}
+	if createdAt == 0 {
+		return Trakt{}, errors.New("CreatedAt is Required")
+	}
+	storage := getStorage()
+	for _, tag := range tags {
+		tag = NewTag(tag.Name, tag.CreatedAt)
+		storage.AddTag(tag)
+	}
+	return Trakt{Text: text, CreatedAt: createdAt, Tags: tags}, nil
+}
+
 // (Deserialization) JSON API where the Trakt package gets JSON of Trakt or Tag to parse it
 
 // AddTrakt : Public API for Adding JSON based Trakt
@@ -74,7 +91,10 @@ func AddTrakt(traktData []byte) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-
+	trakt, err = NewTrakt(trakt.Text, trakt.CreatedAt, trakt.Tags)
+	if err != nil {
+		return false, err
+	}
 	// add trakt to storage
 	return storage.AddTrakt(trakt), nil
 }
