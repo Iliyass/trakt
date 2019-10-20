@@ -50,7 +50,8 @@ type Storage interface {
 	GetTraktsByDate(from time.Time, to time.Time) []Trakt
 	GetTraktsByTag(tag Tag) []Trakt
 	AddTag(tag Tag) bool
-	GetTag(name string) (*Tag, error)
+	// GetTag(name string) (*Tag, error)
+	ListTags() ([]Tag, error)
 }
 
 var storageInstance Storage
@@ -102,6 +103,12 @@ func AddTag(tagData []byte) (bool, error) {
 	}
 
 	return storage.AddTag(tag), nil
+}
+
+// List Tags: Public Api
+func ListTags() (tags []Tag, err error) {
+	storage := getStorage()
+	return storage.ListTags()
 }
 
 // (Serialization) JSON API where the Trakt package response to commands with JSON formatted Trakt or Tags

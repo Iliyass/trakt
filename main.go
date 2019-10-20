@@ -40,6 +40,18 @@ func main() {
 						return nil
 					},
 				},
+				{
+					Name:  "list",
+					Usage: "list tags",
+					Action: func(c *cli.Context) error {
+						tags, err := trakt.ListTags()
+						if err != nil {
+							panic(err)
+						}
+						fmt.Println(tags)
+						return nil
+					},
+				},
 			},
 		},
 		{

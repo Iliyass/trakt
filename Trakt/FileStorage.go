@@ -2,7 +2,6 @@ package trakt
 
 import (
 	"encoding/json"
-	"errors"
 	"io/ioutil"
 	"os"
 	"path"
@@ -150,13 +149,14 @@ func (s *FileStorage) AddTag(tag Tag) bool {
 	return true
 }
 
-// GetTag get tag
-func (s *FileStorage) GetTag(name string) (tag *Tag, err error) {
-	// for _, t := range s.tags {
-	// 	if t.Name == name {
-	// 		return tag, nil
-	// 	}
-	// }
-	// return nil, errors.New("Tag not found")
-	return nil, errors.New("Tag not found")
+// ListTags Listing tags
+func (s *FileStorage) ListTags() (tags []Tag, err error) {
+	data := readFile(TAGS_FILENAME)
+	err = json.Unmarshal(data, &tags)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return tags, nil
 }
