@@ -116,9 +116,28 @@ func (s *FileStorage) GetTraktsByTag(tag Tag) (res []Trakt) {
 
 // AddTag add tag
 func (s *FileStorage) AddTag(tag Tag) bool {
-	// prevLen := len(s.tags)
-	// s.tags = append(s.tags, tag)
-	// return len(s.tags) > prevLen
+	fileName := TAGS_FILENAME
+	data := readFile(fileName)
+
+	var tags []Tag
+	err := json.Unmarshal(data, &tags)
+	if err != nil {
+		panic(err)
+	}
+	isDuplicate := false
+	for _, t := range tags {
+		if t.Name == tag.Name {
+			isDuplicate = true
+		}
+	}
+	if isDuplicate {
+		return true
+	}
+	tags = append(tags, tag)
+	data, err = json.Marshal(tags)
+	if err != nil {
+		panic(err)
+	}
 	return true
 }
 
